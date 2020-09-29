@@ -2,12 +2,10 @@ package fr.umlv.javainsidelab2;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
-import static fr.umlv.javainsidelab2.JSONParse.parse;
-
 
 public class JSONPrinter {
 
@@ -28,25 +26,20 @@ public class JSONPrinter {
         }
     }
 
+    private static String getAnnotation(RecordComponent record){
+        return record.isAnnotationPresent( JSONProperty.class) ? record.getAnnotation(JSONProperty.class).field() : record.getAccessor().getName();
+    }
+
     public static String toJSON(Record record) {
-        var foo = record.getClass();
-        var components = foo.getRecordComponents();
+        var components = record.getClass().getRecordComponents();
 
         return Arrays.stream(components)
                 .map( line ->
                             """
                             "%s" : "%s"
-                            """.formatted( line.getAccessor().getName(), checkException( line.getAccessor(), record ).toString() )
+                            """.formatted( getAnnotation(line)  , checkException( line.getAccessor(), record ).toString() )
                 )
                 .collect(Collectors.joining(", ","{","}"));
     }
 
-    public static void main(String[] args) {
-        var person = new Person("John", "Doe");
-        System.out.println(toJSON(person));
-        var alien = new Alien(100, "Saturn");
-        System.out.println(toJSON(alien));
-
-        System.out.println( parse( toJSON(person) ));
-    }
 }
