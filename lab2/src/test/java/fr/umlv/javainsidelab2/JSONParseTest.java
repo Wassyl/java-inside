@@ -39,4 +39,10 @@ public class JSONParseTest {
     public void testingAlien() {
         assertEquals( parse("{ \"age\": 100, \"planet\": \"Saturn\" }").toString(), parse(toJSON(new Alien(100, "Saturn"))).toString() );
     }
+
+    @Test
+    public void testingCache() {
+        assertEquals( parse("{ \"first-name\": \"John\", \"last-name\": \"Doe\" }").toString(), parse(toJSON(new Person("John", "Doe"))).toString() );
+    }
+
 }

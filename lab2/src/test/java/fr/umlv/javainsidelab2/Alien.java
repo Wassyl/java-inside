@@ -8,5 +8,6 @@ public record Alien(int age, String planet) {
             throw new IllegalArgumentException("negative age");
         }
         requireNonNull(planet);
+
     }
 }

@@ -7,5 +7,6 @@ public record Person( @JSONProperty String first_name, @JSONProperty String last
         requireNonNull(first_name);
         requireNonNull(last_name);
     }
+    
 }
    
