@@ -6,6 +6,9 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static fr.umlv.javainsidelab2.JSONParse.parse;
+
+
 public class JSONPrinter {
 
     private static Object checkException( Method accessor, Record record ){
@@ -30,9 +33,12 @@ public class JSONPrinter {
         var components = foo.getRecordComponents();
 
         return Arrays.stream(components)
-                .map( line -> checkException( line.getAccessor(), record ) )
-                .map( Object::toString )
-                .collect(Collectors.joining("; ","{","}"));
+                .map( line ->
+                            """
+                            "%s" : "%s"
+                            """.formatted( line.getAccessor().getName(), checkException( line.getAccessor(), record ).toString() )
+                )
+                .collect(Collectors.joining(", ","{","}"));
     }
 
     public static void main(String[] args) {
@@ -41,5 +47,6 @@ public class JSONPrinter {
         var alien = new Alien(100, "Saturn");
         System.out.println(toJSON(alien));
 
+        System.out.println( parse( toJSON(person) ));
     }
 }
