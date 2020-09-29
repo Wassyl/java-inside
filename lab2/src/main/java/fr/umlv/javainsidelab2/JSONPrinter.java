@@ -27,7 +27,7 @@ public class JSONPrinter {
     }
 
     private static String getAnnotation(RecordComponent record){
-        return record.isAnnotationPresent( JSONProperty.class) ? record.getAnnotation(JSONProperty.class).field() : record.getAccessor().getName();
+        return record.isAnnotationPresent( JSONProperty.class) ? record.getAccessor().getName().replace('_','-') : record.getAccessor().getName();
     }
 
     public static String toJSON(Record record) {

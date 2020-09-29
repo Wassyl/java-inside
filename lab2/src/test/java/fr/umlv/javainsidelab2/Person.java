@@ -2,10 +2,10 @@ package fr.umlv.javainsidelab2;
 
 import static java.util.Objects.requireNonNull;
 
-public record Person( @JSONProperty(field = "first-name") String firstName, @JSONProperty(field = "last-name") String lastName) {
+public record Person( @JSONProperty String first_name, @JSONProperty String last_name) {
     public Person {
-        requireNonNull(firstName);
-        requireNonNull(lastName);
+        requireNonNull(first_name);
+        requireNonNull(last_name);
     }
 }
    
