@@ -22,6 +22,8 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Benchmark)
 public class LoggerBenchMark {
+    class Foo {}
+    private static final Logger logger = Logger.lambdaOf(Foo.class, __ -> {});
 
     @Benchmark
     public void no_op() {
@@ -31,14 +33,7 @@ public class LoggerBenchMark {
     @Benchmark
     public void simple_logger() {
         // TODO
-        class Foo{}
-        var logger = Logger.of(Foo.class, message -> {});
-        logger.log("test");
-    }
-
-    @Benchmark
-    public void lambda_logger() {
-
+        logger.log("Test");
     }
 
 }
