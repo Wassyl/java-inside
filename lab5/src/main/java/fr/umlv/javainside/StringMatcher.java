@@ -90,26 +90,19 @@ public class StringMatcher {
                 .stream()
                 .collect(groupingBy( String::hashCode ));
 
-        int[] hashes = tmpMap.keySet()
-                .stream()
-                .mapToInt( Integer::valueOf )
-                .toArray();
+        int[] hashes = new int[tmpMap.size()];
+        MethodHandle[] mhs = new MethodHandle[tmpMap.size()+1];
+        var i=0;
+        for(var e : tmpMap.entrySet()) {
+            var hash = e.getKey();
+            var strings = e.getValue();
 
-        MethodHandle[] mhs = tmpMap
-                .keySet()
-                .stream()
-                .map(e -> dropArguments(
-                        matchWithAnInliningCache(
-                                mapping.entrySet()
-                                        .stream()
-                                        .filter( entry -> entry.getKey().hashCode() == e)
-                                        .collect(Collectors.toMap( Map.Entry::getKey,Map.Entry::getValue))
-                ),0, int.class))
-                .toArray(MethodHandle[]::new);
-
-        mhs = Arrays.copyOf(mhs, mhs.length+1);
+            hashes[i] = hash;
+            var mh =  matchWithGWTs(strings.stream().collect( Collectors.toMap( Function.identity(), mapping::get )));
+            mhs[i] = dropArguments( mh,0, int.class);
+            i++;
+        }
         mhs[mhs.length-1] = dropArguments(constant(int.class, -1), 0, int.class, String.class);
-
         return foldArguments(LookupSwitchGenerator.lookupSwitch(hashes, mhs), HASH_CODE);
     }
 }
