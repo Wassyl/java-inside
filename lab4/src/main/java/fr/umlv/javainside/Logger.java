@@ -39,12 +39,13 @@ public interface Logger {
         };
     }
 
+    /*
     public static Logger recordOf(Class<?> declaringClass, Consumer<? super String> consumer) {
         var mh = createLoggingMethodHandle(declaringClass, consumer);
         record Logger(){
 
         }
-    }
+    }*/
 
     class Impl{
         private static final MethodHandle ACCEPT;
