@@ -6,9 +6,10 @@ import java.lang.invoke.MethodHandle;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-@Warmup(iterations = 5, time = 2, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 5, time = 2, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5, time = 2, timeUnit = SECONDS)
+@Measurement(iterations = 5, time = 2, timeUnit = SECONDS)
 @Fork(3)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -19,7 +20,7 @@ public class SwitchBenchMark {
 
     private static final MethodHandle MATCH_WITH_GWTS = StringMatcher.matchWithGWTs(CASES);
     private static final MethodHandle MATCH_INLINE_CACHE = StringMatcher.matchWithAnInliningCache(CASES);
-    //private static final MethodHandle MATCH_USING_HASHCODES = StringMatcher.matchUsingHashCodes(CASES);
+    private static final MethodHandle MATCH_USING_HASHCODES = StringMatcher.matchUsingHashCodes(CASES);
 
     @Benchmark
     public int match_with_gwts() throws Throwable {
@@ -39,4 +40,12 @@ public class SwitchBenchMark {
         return sum;
     }
 
+    @Benchmark
+    public int match_with_hash_code() throws Throwable {
+        var sum = 0;
+        for (var text : TEXTS) {
+            sum += (int) MATCH_USING_HASHCODES.invokeExact(text);
+        }
+        return sum;
+    }
 }

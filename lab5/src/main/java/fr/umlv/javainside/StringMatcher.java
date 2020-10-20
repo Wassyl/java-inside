@@ -3,10 +3,16 @@ package fr.umlv.javainside;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MutableCallSite;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.*;
+import static java.util.stream.Collectors.groupingBy;
 
 public class StringMatcher {
     private static final MethodHandle EQUALS;
@@ -59,10 +65,51 @@ public class StringMatcher {
 
             var test = insertArguments(EQUALS, 1, text);
             var target = dropArguments(constant(int.class, index), 0, String.class);
-            var guard = guardWithTest(test, target, getTarget());
+
+            //var guard = guardWithTest(test, target, getTarget());
+            var guard = guardWithTest(test, target, new InliningCache(mapping).dynamicInvoker() );
 
             setTarget(guard);
             return index;
         }
+    }
+
+    private static final MethodHandle HASH_CODE;
+    static {
+        var lookup = lookup();
+        try {
+            HASH_CODE = lookup.findVirtual(String.class,"hashCode", methodType(int.class));
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public static MethodHandle matchUsingHashCodes(Map<String, Integer> mapping) {
+
+        var tmpMap = mapping.keySet()
+                .stream()
+                .collect(groupingBy( String::hashCode ));
+
+        int[] hashes = tmpMap.keySet()
+                .stream()
+                .mapToInt( Integer::valueOf )
+                .toArray();
+
+        MethodHandle[] mhs = tmpMap
+                .keySet()
+                .stream()
+                .map(e -> dropArguments(
+                        matchWithAnInliningCache(
+                                mapping.entrySet()
+                                        .stream()
+                                        .filter( entry -> entry.getKey().hashCode() == e)
+                                        .collect(Collectors.toMap( Map.Entry::getKey,Map.Entry::getValue))
+                ),0, int.class))
+                .toArray(MethodHandle[]::new);
+
+        mhs = Arrays.copyOf(mhs, mhs.length+1);
+        mhs[mhs.length-1] = dropArguments(constant(int.class, -1), 0, int.class, String.class);
+
+        return foldArguments(LookupSwitchGenerator.lookupSwitch(hashes, mhs), HASH_CODE);
     }
 }

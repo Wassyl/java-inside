@@ -42,7 +42,7 @@ public class StringMatcherTest {
                 () -> testMHWithUnknownCase(mh, List.of("batman", "joker", "robin"))
         );
     }
-    /*
+
 
     @Test
     public void matchUsingHashCodes() {
@@ -52,5 +52,5 @@ public class StringMatcherTest {
                 () -> testMHWithCases(mh, cases),
                 () -> testMHWithUnknownCase(mh, List.of("batman", "joker", "robin"))
         );
-    }*/
+    }
 }
